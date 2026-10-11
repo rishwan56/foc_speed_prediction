@@ -39,6 +39,7 @@ graph TD
 * [BLDC_KNN_Dataset.xlsx](file:///c:/rishwan/Projects/foc_speed_prediction/BLDC_KNN_Dataset.xlsx): The Excel dataset containing training parameters and their corresponding actual motor speed (RPM).
 * [train_knn.py](file:///c:/rishwan/Projects/foc_speed_prediction/train_knn.py): Script to load dataset, split data, apply `StandardScaler`, perform Grid Search optimization for hyperparameter tuning (`n_neighbors`, distance metrics, weights), evaluate the model, and save checkpoints.
 * [predict.py](file:///c:/rishwan/Projects/foc_speed_prediction/predict.py): Command Line Interface (CLI) and interactive program that uses the trained scaler and model to predict the motor RPM for any given environment scenario.
+* [person_detector.py](file:///c:/rishwan/Projects/foc_speed_prediction/person_detector.py): Computer vision occupancy detection script using YOLOv8 to count people in real time from a webcam or video stream, and dynamically feed the occupancy count to the KNN motor speed predictor.
 * [knn_model.joblib](file:///c:/rishwan/Projects/foc_speed_prediction/knn_model.joblib): Saved KNeighborsRegressor model checkpoint.
 * [scaler.joblib](file:///c:/rishwan/Projects/foc_speed_prediction/scaler.joblib): Saved StandardScaler object checkpoint.
 * [knn_performance.png](file:///c:/rishwan/Projects/foc_speed_prediction/knn_performance.png): Saved matplotlib plot comparing the actual vs. predicted fan speed (RPM) for evaluation.
@@ -50,7 +51,7 @@ graph TD
 Ensure you have Python installed, then install the required dependencies:
 
 ```bash
-pip install pandas numpy scikit-learn openpyxl matplotlib seaborn joblib
+pip install pandas numpy scikit-learn openpyxl matplotlib seaborn joblib opencv-python ultralytics
 ```
 
 ---
@@ -94,6 +95,27 @@ Run without any argument to execute using default pre-configured test parameters
 python predict.py
 ```
 
+### 3. Real-Time Occupancy Detection (YOLO + KNN Integration)
+
+Run the computer vision script [person_detector.py](file:///c:/rishwan/Projects/foc_speed_prediction/person_detector.py) to count people from your webcam or a video feed and dynamically predict fan speed in real time:
+
+#### Live Webcam Stream:
+```bash
+python person_detector.py --source 0
+```
+
+#### Run on a Video File or Image:
+```bash
+python person_detector.py --source mall_cctv.mp4
+```
+
+#### Custom Ambient Conditions during Live Detection:
+```bash
+python person_detector.py --source 0 --temp 35.0 --humidity 60.0 --gas 150.0
+```
+
+Press `q` or `ESC` in the video window to stop.
+
 ---
 
 ## 📊 Features & Model Inputs
@@ -106,7 +128,7 @@ The KNN model expects the following features in order:
 | `Humidity_percent` | Ambient humidity levels | Percentage (%) |
 | `Gas_ppm` | Gas concentration in the environment | Parts Per Million (ppm) |
 | `Pressure_hPa` | Barometric atmospheric pressure | Hectopascals (hPa) |
-| `Occupancy` | YOLO human occupancy detection indicator | 0.0 (Unoccupied) / 1.0 (Occupied) |
+| `Occupancy` | Number of persons detected (from YOLO vision stream) | Count (0 to 10+) |
 | `Voltage_V` | Motor feed-forward voltage sensor reading | Volts (V) |
 | `Current_A` | Motor feed-forward current sensor reading | Amperes (A) |
 

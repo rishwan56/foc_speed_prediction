@@ -99,7 +99,7 @@ def main():
         inputs = {
             'Temperature_C': 33.5,
             'Humidity_percent': 31.0,
-            'Gas_ppm': 120.0,
+            'Gas_ppm': 1000.0,
             'Pressure_hPa': 1013.25,
             'Occupancy': 1.0,
             'Voltage_V': 12.0,
