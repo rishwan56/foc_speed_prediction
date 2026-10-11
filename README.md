@@ -40,6 +40,7 @@ graph TD
 * [train_knn.py](file:///c:/rishwan/Projects/foc_speed_prediction/train_knn.py): Script to load dataset, split data, apply `StandardScaler`, perform Grid Search optimization for hyperparameter tuning (`n_neighbors`, distance metrics, weights), evaluate the model, and save checkpoints.
 * [predict.py](file:///c:/rishwan/Projects/foc_speed_prediction/predict.py): Command Line Interface (CLI) and interactive program that uses the trained scaler and model to predict the motor RPM for any given environment scenario.
 * [person_detector.py](file:///c:/rishwan/Projects/foc_speed_prediction/person_detector.py): Computer vision occupancy detection script using YOLOv8 to count people in real time from a webcam or video stream, and dynamically feed the occupancy count to the KNN motor speed predictor.
+* [simulate_realtime.py](file:///c:/rishwan/Projects/foc_speed_prediction/simulate_realtime.py): Real-time environment and occupancy stream simulator that tests the FOC BLDC drive under realistic mall conditions (morning lull, rush hour, gas spikes, random walk).
 * [knn_model.joblib](file:///c:/rishwan/Projects/foc_speed_prediction/knn_model.joblib): Saved KNeighborsRegressor model checkpoint.
 * [scaler.joblib](file:///c:/rishwan/Projects/foc_speed_prediction/scaler.joblib): Saved StandardScaler object checkpoint.
 * [knn_performance.png](file:///c:/rishwan/Projects/foc_speed_prediction/knn_performance.png): Saved matplotlib plot comparing the actual vs. predicted fan speed (RPM) for evaluation.
@@ -115,6 +116,39 @@ python person_detector.py --source 0 --temp 35.0 --humidity 60.0 --gas 150.0
 ```
 
 Press `q` or `ESC` in the video window to stop.
+
+### 4. Real-Time Environment Simulator (`simulate_realtime.py`)
+
+Simulate dynamic shopping mall conditions with realistic sensor drift and time-series fluctuations:
+
+#### Continuous Real-Time Simulation (Live Dashboard):
+```bash
+python simulate_realtime.py --interval 1.0
+```
+
+#### Test Mall Specific Presets:
+* **Empty Morning / Low Load:**
+  ```bash
+  python simulate_realtime.py --scenario morning_empty
+  ```
+* **Crowded Afternoon Rush / High Load:**
+  ```bash
+  python simulate_realtime.py --scenario afternoon_crowd
+  ```
+* **Food Court Cooking Spike:**
+  ```bash
+  python simulate_realtime.py --scenario food_court_smoke
+  ```
+
+#### Quick Batch Test of Random Scenarios:
+```bash
+python simulate_realtime.py --batch 10
+```
+
+#### Log Simulation to CSV:
+```bash
+python simulate_realtime.py --interval 1.0 --steps 50 --log sim_log.csv
+```
 
 ---
 
