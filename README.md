@@ -96,32 +96,57 @@ Run without any argument to execute using default pre-configured test parameters
 python predict.py
 ```
 
-### 3. Real-Time Occupancy Detection (YOLO + KNN Integration)
+### 3. Real-Time Occupancy Detection & Custom Video Validation (`person_detector.py`)
 
-Run the computer vision script [person_detector.py](file:///c:/rishwan/Projects/foc_speed_prediction/person_detector.py) to count people from your webcam or a video feed and dynamically predict fan speed in real time:
+Run the computer vision script [person_detector.py](file:///c:/rishwan/Projects/foc_speed_prediction/person_detector.py) to count people from a live webcam or a custom video file, validate detection performance, and stream occupancy into the motor simulator:
 
-#### Live Webcam Stream:
+#### A. Custom Video Validation:
+Validate YOLO performance on your own recorded mall/surveillance video files:
+```bash
+python person_detector.py --video path/to/mall_cctv.mp4
+```
+* **Performance Validation Metrics**: Automatically calculates processing FPS vs native video FPS, progress percentage, occupancy range (min/max/mean), and motor speed predictions.
+* **Playback Speed Control**: Real-time FPS sync is enabled by default. Use `--speed 1.5` for accelerated playback, or `--no-sync-fps` (`--fast`) for maximum benchmark inference speed.
+* **Looping & Controls**: Use `--loop` for continuous testing. In the video window, press `SPACE` to pause/resume, `r` to rewind, `d` to toggle HUD, and `q` or `ESC` to stop and view the final validation report.
+
+#### B. Pass Video Data Directly to `simulate_realtime.py` (In-Stream Simulation):
+Feed detected occupancy from the video straight into the sensor drift & FOC motor speed simulation dashboard:
+```bash
+python person_detector.py --video mall_cctv.mp4 --simulate
+```
+You can also specify mall environment presets and save simulation outputs:
+```bash
+python person_detector.py --video mall_cctv.mp4 --simulate --sim-scenario afternoon_crowd --sim-log video_sim_log.csv
+```
+
+#### C. Live Webcam Stream:
 ```bash
 python person_detector.py --source 0
 ```
 
-#### Run on a Video File or Image:
-```bash
-python person_detector.py --source mall_cctv.mp4
-```
-
-#### Custom Ambient Conditions during Live Detection:
-```bash
-python person_detector.py --source 0 --temp 35.0 --humidity 60.0 --gas 150.0
-```
-
-Press `q` or `ESC` in the video window to stop.
+---
 
 ### 4. Real-Time Environment Simulator (`simulate_realtime.py`)
 
 Simulate dynamic shopping mall conditions with realistic sensor drift and time-series fluctuations:
 
-#### Continuous Real-Time Simulation (Live Dashboard):
+#### Run Simulation Directly Driven by Video:
+```bash
+python simulate_realtime.py --video mall_cctv.mp4
+```
+
+#### Listen to Live Stream from `person_detector.py` (Dual-Terminal IPC Mode):
+In Terminal 1 (Detector):
+```bash
+python person_detector.py --video mall_cctv.mp4
+```
+In Terminal 2 (Simulator):
+```bash
+python simulate_realtime.py --live
+```
+`simulate_realtime.py` will automatically pick up live occupancy updates published by `person_detector.py` via `.live_occupancy.json`.
+
+#### Continuous Synthetic Simulation (Live Sensor Drift Dashboard):
 ```bash
 python simulate_realtime.py --interval 1.0
 ```

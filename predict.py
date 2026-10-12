@@ -4,17 +4,30 @@ import argparse
 import pandas as pd
 import joblib
 
+_CACHED_MODEL = None
+_CACHED_SCALER = None
+
 def load_artifacts():
-    model_filename = 'knn_model.joblib'
-    scaler_filename = 'scaler.joblib'
+    global _CACHED_MODEL, _CACHED_SCALER
+    if _CACHED_MODEL is not None and _CACHED_SCALER is not None:
+        return _CACHED_MODEL, _CACHED_SCALER
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    model_filename = os.path.join(base_dir, 'knn_model.joblib')
+    scaler_filename = os.path.join(base_dir, 'scaler.joblib')
     
+    if not os.path.exists(model_filename):
+        model_filename = 'knn_model.joblib'
+    if not os.path.exists(scaler_filename):
+        scaler_filename = 'scaler.joblib'
+
     if not os.path.exists(model_filename) or not os.path.exists(scaler_filename):
         print("Error: Model or scaler not found. Please run train_knn.py first to train and save the model.")
         sys.exit(1)
         
-    model = joblib.load(model_filename)
-    scaler = joblib.load(scaler_filename)
-    return model, scaler
+    _CACHED_MODEL = joblib.load(model_filename)
+    _CACHED_SCALER = joblib.load(scaler_filename)
+    return _CACHED_MODEL, _CACHED_SCALER
 
 def predict_speed(features_dict):
     model, scaler = load_artifacts()
